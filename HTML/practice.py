@@ -5,9 +5,10 @@ import pandas as pd
 from google.cloud import language_v1
 from google.oauth2 import service_account
 from docx import Document
+import csv
 
 def get_NLP_data(input_texts, SQ1_input):
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"Path\to\your\Google\Service\Account\JSON\key\file.json"
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\Hooman Deghani\OneDrive\PC\Desktop\API Keys\natural-language-api-381923-52cfb8b44bd7.json"
 
     credentials = service_account.Credentials.from_service_account_file(os.environ["GOOGLE_APPLICATION_CREDENTIALS"])
     client = language_v1.LanguageServiceClient(credentials=credentials)
@@ -154,9 +155,34 @@ def ordinal(n):
         suffix = suffixes.get(n % 10, 'th')
     return str(n) + suffix
 
+def analyze_overall_sentiment_and_category(text, client):
+    document_type = language_v1.Document.Type.PLAIN_TEXT
+    language_document = language_v1.Document(content=text, type_=document_type)
+
+    sentiment_response = client.analyze_sentiment(request={'document': language_document})
+    overall_sentiment = sentiment_response.document_sentiment
+
+    category_response = client.classify_text(request={'document': language_document})
+    categories = category_response.categories
+
+    category_data = [(category.name, category.confidence) for category in categories]
+    return overall_sentiment, category_data
+
+def create_csv(data, file_name):
+    with open(f"{file_name}.csv", mode="w", newline='', encoding='utf-8') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(['Entity', 'Sentiment Score', 'Sentiment Magnitude'])
+
+        for row in data:
+            writer.writerow(row)
+
 
 
 if __name__ == "__main__":
-    input_texts = ["text1.txt", "text2.txt", "text3.txt"]  # Replace these with your own file paths
-    SQ1_input = "SQ1_text.txt"  # Replace this with the path to the special project text file
+    input_texts = [
+        r"C:\Users\Hooman Deghani\Python\Data Analysis\HTML\https___www.rocketmortgage.com_learn_first-time-home-buyer-tips.txt",
+        r"C:\Users\Hooman Deghani\Python\Data Analysis\HTML\https___www.nerdwallet.com_article_mortgages_tips-for-first-time-home-buyers.txt",
+        r"C:\Users\Hooman Deghani\Python\Data Analysis\HTML\https___www.investopedia.com_updates_first-time-home-buyer_.txt",
+    ] 
+    SQ1_input = r"C:\Users\Hooman Deghani\Python\Data Analysis\HTML\https___www.squareone.ca_resource-centres_home-buying-selling-moving_buying-a-home-for-the-first-time.txt"
     get_NLP_data(input_texts, SQ1_input)

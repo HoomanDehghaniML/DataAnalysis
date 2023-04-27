@@ -2,14 +2,15 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
-MAIN_TAGS = ["main", "article", "content", "post", "entry-content", "main-content"]
+MAIN_TAGS = ["main", "article", "content", "post", "entry-content", "main-content", "body.sq1-public"]
 
 def get_main_text(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
 
+    main_content = None
     for tag in MAIN_TAGS:
-        main_content = soup.find(tag)
+        main_content = soup.select_one(tag)
         if main_content:
             break
 
