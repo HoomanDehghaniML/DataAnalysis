@@ -1,0 +1,70 @@
+ChatGPT Prompt
+Overall Purpose. The goal of this program is to create an outreach list from a list of URLs. 
+To do that, it will first read a few csv files and add them to a single dataframe. It will then remove most columns from the dataframe add new columns to that dataframe, one of which is called ‘Recipient’. Next, it will connect to Hunter.io’s api and attempt to fill the new columns based on a simple set of criteria. I have provided step by step implementation for you below. Please read them and create the python code for me.
+1-	Phase 1: read backlink data and create a dataframe.
+a.	Create a list variable and name it ‘urls’. It will include a limited number of strings. These strings are filepaths.
+b.	Create a dataframe named ‘df’. This dataframe will loop through the above list and read each csv file. Since all the csv files will share the same columns, add them all together in df. 
+i.	For example, if csv file 1 has 150 rows, csv file 2 has 2000 rows, csv file 3 has 500 rows, df will have 2650 rows in total. 
+c.	The index of the dataframe will be simple numbers starting from 1.
+2-	Phase 2: Clean up dataframe.
+a.	Remove. Drop all the columns from df except the following: [‘Referring page URL’, ‘Domain rating’]
+b.	Edit. We only want the root URL. Apply a filter to the contents of the ‘Referring page URL’ column to only keep the root URL. For example, if df.loc[2, ‘Referring Page URL’] = ‘https://moversville.com/blog/checklist-buying-home’, change it to ‘https://moversville.com.’ 
+c.	Add. Add Six new columns to the dataframe in this order: ‘First Name’, ‘Last Name’, ‘Recipient’, ‘Status’, ‘Replied’, ‘Converted’. We will fill the first three columns in step 4. But first, we need to define a few conditions on how we will fill them.
+3-	Phase 3: The conditions. In phase three and four, we will connect to hunter.io’s api and retrieve emails, status of the emails, first names, and last names for each URL. The retrieving will be based on three conditions. I will briefly outline them in phase 3 (here) and I will detail the implementation in phase 4.
+a.	Unique. We will only retrieve ONE email per domain. 
+b.	Priorities. We will look for emails based on specific criteria. If that criterion doesn’t exist, we will move to the next one. As soon as one criterion is met we retrieve the email and write it to the dataframe. Here is the priorities, arranged from the highest priority to lowest:
+i.	Department: marketing, Seniority: executive
+ii.	Department: marketing, Seniority: senior
+iii.	Department: marketing, Seniority: junior
+iv.	Department: communication, Seniority: executive
+v.	Department: communication, Seniority: senior
+vi.	Department: communication, Seniority: junior
+vii.	Department: it, Seniority: executive
+viii.	Department: it, Seniority: senior
+ix.	Department: it, Seniority: junior
+x.	Department: hr, Seniority: executive
+xi.	Department: hr, Seniority: senior
+xii.	Department: hr, Seniority: junior
+xiii.	If no email is found, find the first email available.
+In other words, we first want to find the marketing executive for each URL. If that person’s email doesn’t exist, we want a lower rank person in marketing. We continue down this path until we can’t find anyone in our desired departments. In that case, we find the first email available.
+c.	Valid. We will run each email retrieved through hunter.io’s Email Verifier API to see if they’re valid or not.
+4-	Phase 4: Connect to api. For this phase’s implementation, feel free to completely digress from my directions and make code that achieves the same goal with more efficiency. I am only providing you with the directions in order to make you understand what I need.
+a.	Connect to hunter.io’s domain search api. We will use the root URLs created in phase 2 to retrieve the emails.
+b.	Use the conditions in phase 3 to retrieve the emails. It’s imperative that you stick to the conditions.
+c.	Once you retrieve the email for a URL, connect to hunter.io’s Email Verifier api to verify the email. Only keep the email if it’s verifiability status is “valid” or “accept_all”. If the status is “invalid”, “webmail”, “disposable”, or “unknown”, go back to sub-step b in phase 4 to retrieve another email.
+d.	If you retrieved an email and managed to verify it to the correct status, fill df with the email, first name, and last name of the person.
+It’s important to note again that you can go against the specific implementation details I have provided you in step 4 if you think you have a more efficient way to achieve the same goal. The goal is to retrieve the emails based on a set of conditions.
+5-	It’s time to save the file. 
+a.	Prompt the user for the file name by asking, “What is the project name?” and save it to a variable named project.
+b.	Save df to an excel file named f”{project}”.
+c.	Work is done!
+
+If you understood the code, answer with “Understood” and wait for me to say “proceed” before you produce the code. 
+Based on the instructions provided, how likely do you think it is for this algorithm to find valid emails for a set of URLs? Say unlikely for 10-30%, moderately likely for 30-50%, likely for 50-70%, and confident for 70-100%.
+
+```
+Can you make it so it writes the emails it has already received so I won't be wasting my api rate? And next time when querying again, if domain already has its email filled then the script won't make a request.
+
+```
+When you filter the URLs to get their roots, I want you to keep the original column with the long URL and instead add the urls to a new columns. For example:
+
+"""
+Original URL: squareone.ca/resource-centres/first_time_homebuyer
+Filtered URL: squareone.ca
+"""
+Keep the original column with the URLs and instead create a new column called "Root URL". We will pass this "Root URL" as the domain to hunter.io's api, so edit that part of the code as well.
+
+```
+Instead of the user inputting every single csv file, the user will provide a folder path. The code then scans the folder and adds all csv files to the list. The rest of the code should remain unchanged. Can you send me updated snippets?
+
+```
+Excellent. At the end of the script, right before #phase 5: Save the file, fill the "First name" column based on the following condition:
+
+```
+If an email is found but no first name is found, fill the first name column for that email as "sir/madam". 
+```
+
+The purpose of this is to make sure all emails have a subject line name when i want to mail merge them.
+```
+the hunter.io api is limited to 300 requests per minute. Since some of the files I upload have over 3000 urls in them, can you edit the code (only the snippets that need it) to impose a rate of 300 requests per minute?
+```

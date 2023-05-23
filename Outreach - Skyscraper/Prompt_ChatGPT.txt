@@ -1,0 +1,15 @@
+"I need to write a Python script that uses the pandas, requests, tldextract, os, openpyxl, and time libraries to perform a series of operations.
+
+The script should begin by defining a string API_KEY with the value '346266b96ff7d733bf03f4d4bbbe5bfdad6520c1'. Next, I want to read multiple CSV files located in a specified directory, concatenate them into a pandas DataFrame, and perform some modifications to the DataFrame.
+
+Specifically, I want to extract the root domain from each URL in the 'Referring page URL' column and store it in a new column, 'Root URL'. The DataFrame should then be updated with new columns for 'First Name', 'Last Name', 'Recipient', 'Status', 'Replied', and 'Converted', which are initially set to be empty.
+
+The script should then connect to the hunter.io API and fetch email information for each domain in the 'Root URL' column. It should try different combinations of departments and seniority levels before resorting to not providing any such parameters. The departments should be 'marketing', 'communication', 'it', 'hr', and the seniority levels should be 'executive', 'senior', 'junior'.
+
+If a valid email is found, the script should populate the respective fields in the DataFrame. Any missing first names should be filled in as 'Sir/Madam'. A delay of 200 milliseconds should be introduced between each API request to avoid rate limit issues.
+
+Errors encountered during the execution should be logged and printed at the end of the execution.
+
+Finally, the script should prompt the user for a project name and save the DataFrame as an Excel file using this name.
+
+Could you provide me with a Python script that performs these operations?"
