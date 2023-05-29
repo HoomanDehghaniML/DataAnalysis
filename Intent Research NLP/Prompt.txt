@@ -1,0 +1,75 @@
+Devise the whole map of what you want the software to do
+The explanation is already quite clear, but to make it even easier to work with when creating the program, you can consider the following improvements:
+1.	Break down the process into smaller, numbered steps or a bulleted list to create a more straightforward implementation plan. This will help ensure that no step is missed and make it easier to follow the order of operations.
+2.	Specify the format of the input, such as whether the list of competitor articles and the single article from your company are provided as URLs, text files, or any other format.
+3.	Clearly define the expected output format, such as whether the program should produce a single file with all the data or multiple files for each type of data (entities, categories, sentiment scores, etc.).
+4.	Specify any libraries, tools, or APIs that must be used in the program, and provide any necessary API keys or access tokens if needed.
+5.	If you have any specific requirements or constraints, such as a maximum runtime for the program or compatibility with specific platforms, mention these explicitly.
+By providing a more structured plan and addressing these points, you can make the process of creating the program even smoother and more efficient.
+
+GPT Prompt
+Create a complete code based on the following prompt that does everything desired from start to finish:
+General Purpose
+•	Goal of program in one paragraph: Why am I doing this? 
+-	I am an SEO. I am planning to do intent research for our blog articles. I want to take an existing article from our website, as well as one or more competitor articles that compete for the same keywords as our article. I want to connect to Google’s Natural Language API and find out what entities the competitors are using, what’s the average sentiment score of the competitor articles, and what categories they are employing. I want to compare this data against the same data for our article, making changes to our article if the competitors have different sentiment scores and categories than our article. The change we’ll be making primarily involves adding entities from competitor articles to our own article. Afterward, I will run the code again do the same analysis and see if the sentiment and category difference between our article and the competitors’ is gone.  
+•	Summary of program in one paragraph: What the program does in as few words as possible.
+-	The program takes two inputs: one is a list of competitor articles, and one is a single article from sq1 (our company). It receives the following data for each article: entities and their salience score, overall sentiment score and magnitude, sentiment data and their magnitude, and the top 3 categories and confidence scores.  It saves each of these data into variables. It creates a dataframe that contains all the entities along with their salience from all competitors. It then averages the salience score of identical entities and turns them into one entry in the dataframe. The program next compares this dataframe against the data from our article and finds the entities we’re not using.  Next, the program gets the category data and their confidence scores, and the overall sentiment and the magnitude of each article and writes it to a html file. If the sentiment score of our article is significantly different from the average sentiment score of competitors, it then writes an additional paragraph instructing our company’s content writer to make changes to the article based on the entities.csv file. Next, the program receives the detailed sentiment data from all competitors and writes it to a dataframe and outputs that to a csv file. Finally, it compresses all the outputted files into a zip file, and it’s done.
+Step by Step
+1.	Get input from user. We want two different inputs: one for the competitors, one for sq1 (our company). We will get these inputs in the CLI with the input() function.
+1.1.	Create a list variable named competitors. 
+1.1.1.	Prompt the user for a series of .txt file paths. Ask them to separate the file paths by comma. 
+1.1.2.	Once the user has entered the file paths, turn the string into a list of strings containing the file paths, with “,” as the separator.
+1.1.3.	This will be our first input for the function we will create later.
+1.2.	Create a string variable named sq1.
+1.2.1.	Prompt the user for a single .txt file path. 
+1.2.2.	This will be the second input for the function we will create later.
+2.	Create the “NLP (list, string)” function. The first argument is the list of strings containing file paths for competitor articles, the second argument is the text file for sq1.
+3.	 Prepare to connect to Google’s Natural Language API. Get the user’s natural language api key and save it to a variable. If there are other information you need from the user, get them as well.
+4.	Receive “Entities + their salience score” data for the competitors. Connect to the API and request the “Entities + their salience score” for each of the .txt file paths in the list argument.
+4.1.	 Save each “Entities + their salience score” data for each competitor to a dataframe. Name the dataframe with the following format: df_competitor_n where n is the number of competitor in the list. For example, the first competitor would be 1, the second would be 2, and the last would be n. 
+4.2.	The dataframe has two columns: “Entity” in which we store the entity data, and “Salience” in which we store the salience score of each entity. The index is just numbers, starting from 1.
+5.	Merge the dataframes. In this step, we merge all the competitor dataframes into one dataframe labeled, “df_competitors”.
+5.1.	Don’t remove duplicates. We will take care of that later.
+6.	Groupby and aggregate. In this step, we group df_competitors by the “Entity” column, and aggregating them based on the “Salience” scores using the mean (average) function.
+6.1.	For reference, the goal of this step is to have unique entries in the “Entity” column only. If there are two or more entries in the “Entity” column, we aggregate their “Salience” score based on the mean function.
+6.2.	Finally, save the new groupbyed, aggregated dataframe as a new dataframe labeled df_competitors_aggregated.
+7.	Receive “Entities + their salience score” for sq1. Now we receive the “Entities + their salience score” for sq1, namely the “string” argument to our function.
+7.1.	Save the “Entities + their salience score” for sq1 to a dataframe. Name the dataframe df_sq1.
+7.2.	The dataframe has two columns: “Entity” in which we stores the entity data, and “Salience” in which we store the salience score for each entity. The index is numbers, starting from 1.
+8.	Filter df_competitors_aggregated. Next, the program removes any rows in df_competitors_aggregated that are identical in the “Entity” column to df_sq1. It then saves the new dataframe as df_competitors_final.
+8.1.	 The program filters df_competitors_aggregated based on the following condition:
+8.1.1.	Common_entities = df_competitors_aggregated[df_competitors_aggregated[‘Entity’].isin(df_sq1[‘Entity’])]
+8.1.2.	df_competitors_final = df_competitors_aggregated[~df_competitors_aggregated[‘Entity’].isin(common_entities[‘Entity’].
+9.	Save df_competitors_final to csv. Ask user via the CLI for name of the project and save it to variable named “project”. The csv file name is f”{project}.csv”.
+10.	In the next several steps, we will create summary.html. This summary will include the category of all competitors and sq1, the sentiment score of all competitors and sq1, the sentiment difference between competitors and sq1, and a “directions” paragraph that we only write to the html file if only the sentiment difference is bigger than a number.
+11.	Get Category data. Connect to the NL api and get the category data for all competitors and sq1. This and the following steps are all still part of the NLP(list, string) function we created in step 2.
+11.1.	Get the top 3 categories for each text input (which are the competitor articles and sq1 article). Get the confidence score for each category as well. 
+11.2.	Save the competitor information to a dataframe named df_category_competitors. This dataframe has two columns: “Category” and “Confidence score” which is the confidence score for each category. Since we are getting the top 3 categories for each competitor, the dataframe should have “Number of competitors” x “3” rows. For example, if we are analyzing three competitors, the number of rows is 3x3 = 9. The index are simply numbers starting from 1.
+11.2.1.	Now, group df_category_competitors by the “Category” column and aggregate them based on confidence score using the mean function.
+11.2.2.	Save this new groupbyed, aggregated dataframe to a new dataframe named df_category_competitors_aggregated.
+11.3.	Save sq1 information to a dataframe named df_category_sq1. This dataframe has two columns: “Category” and “Confidence score” which is the confidence score for each category. Since we are getting the top 3 categories for our article, the dataframe always has three rows, unless Google only returns 2 or less categories.
+11.4.	It’s time to save category data to html format for later printing. 
+11.4.1.	Create a new variable named category_html. Save to category_html the following string: f“<h1> Category Data </h1> <h2> competitors </h2>{ df_category_competitors_aggregated.to_html()} <h2> sq1 </h2>{df_category_sq1.to_html()} <p> If the top three categories from both tables are different, then the article needs an <strong>edit</strong>.”
+12.	Get Sentiment Data. Connect to the NL api and get the sentiment data for all competitors and sq1. This and the following steps are all still part of the NLP(list, string) function we created in step 2.
+12.1.	Get the sentiment score for the entire document for all competitors. Average the score and save the result to a variable named sentiment_competitors.
+12.2.	Get the sentiment score for the entire document for sq1. Save it to a variable named sentiment_sq1.
+12.3.	Subtract sentiment_sq1 from sentiment_competitors and save it to a variable named sentiment_difference. In other words, sentiment_difference = sentiment_competitors – sentiment_sq1.
+12.4.	It’s time to save sentiment data to html format for later printing.
+12.4.1.	If sentiment_difference is smaller than -0.5 or bigger than 0.5, proceed to step 12.4.2. In other words, if (0.5<sentiment_difference || sentiment_difference <-0.5) then proceed to step 12.4.2. Otherwise, skip to step 13.
+12.4.2.	Create a new variable named sentiment_html. Save to sentiment_html the following string: f”<h1>Sentiment Difference</h1><p>Sentiment Difference is {sentiment_difference}. We need to <strong>edit</edit> the article.
+13.	Print to summary.html. Open a new html file and print the following variables to it if they exist: category_html, sentiment_html. Make sure the html file is pretty.
+14.	Compress both files in zip. It’s time to compress the csv file and the html file to a zip file.
+14.1.	Ask the user for zipfile name via the cli. You can use this following variable: zipfile = input(“Enter the name of the project.”)
+14.2.	Compress f”{project}.csv” and summary.html using zip.
+15.	Get sentiment sentences. If sentiment_difference is a negative number, include a list of all positive sentiment sentences. If sentiment_difference is a positive number, include a list of all positive sentiment sentences.
+16.	We are done! Tap yourself on the shoulder.
+
+
+Of course this is only my recommendation for applying the code. Feel free to change it. I just provided this step by step implementation to make sure you 100% understand my request. In the end, all I care about is clean output files.
+ 
+
+•	Create a step by step flow of what the software does
+•	Create a concise prompt for chatgpt. Give the prompt to chatgpt.
+•	Run and edit the code until it works perfectly.
+•	Create a directory for saving chatgpt prompts detailing what code each prompt produces.
+•	Write the perfect prompt based on the working code and save it to a word document in a folder called, “prompts”.
