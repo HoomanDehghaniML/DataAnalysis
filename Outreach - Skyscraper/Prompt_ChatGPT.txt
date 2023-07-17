@@ -1,6 +1,6 @@
 "I need to write a Python script that uses the pandas, requests, tldextract, os, openpyxl, and time libraries to perform a series of operations.
 
-The script should begin by defining a string API_KEY with the value '346266b96ff7d733bf03f4d4bbbe5bfdad6520c1'. Next, I want to read multiple CSV files located in a specified directory, concatenate them into a pandas DataFrame, and perform some modifications to the DataFrame.
+The script should begin by defining a string API_KEY with the value 
 
 Specifically, I want to extract the root domain from each URL in the 'Referring page URL' column and store it in a new column, 'Root URL'. The DataFrame should then be updated with new columns for 'First Name', 'Last Name', 'Recipient', 'Status', 'Replied', and 'Converted', which are initially set to be empty.
 
