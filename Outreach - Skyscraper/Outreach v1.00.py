@@ -12,7 +12,7 @@ API_KEY = '346266b96ff7d733bf03f4d4bbbe5bfdad6520c1'
 error_log = []
 
 # Get directory from the user
-directory = r"C:\Users\Hooman Deghani\OneDrive\PC\Desktop\Input"
+directory = r"C:\Users\Hooman Deghani\OneDrive\PC\Desktop\Input\Bike Theft\Link or Mention"
 
 # List all CSV files in the directory
 urls = [os.path.join(directory, filename) for filename in os.listdir(directory) if filename.endswith('.csv')]
@@ -22,11 +22,12 @@ df = pd.concat([pd.read_csv(url) for url in urls], ignore_index=True)
 # Phase 2: Clean up dataframe
 df = df[['Referring page URL', 'Domain rating', 'Target URL', 'Anchor']]
 df['Root URL'] = df['Referring page URL'].apply(lambda x: f"https://{tldextract.extract(x).domain}.{tldextract.extract(x).suffix}")
-df[['First Name', 'Last Name', 'Recipient', 'Status', 'Replied', 'Converted']] = ""
+df = df.drop_duplicates(subset='Root URL', keep='first')
+df[['First Name', 'Last Name', 'Recipient', 'Status', 'Replied', 'Converted', 'Referring Topic', 'Target Topic']] = ""
 
 
 # Phase 3: The conditions (outlined in the instructions)
-departments = ['marketing', 'communication', 'it', 'hr']
+departments = ['marketing', 'communication', 'hr']
 seniority_levels = ['executive', 'senior', 'junior']
 
 def get_email_from_api(url, department, seniority):
