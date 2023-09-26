@@ -22,7 +22,7 @@ df = pd.concat([pd.read_csv(url) for url in urls], ignore_index=True)
 df = df[['Referring page URL', 'Domain rating', 'Target URL', 'Anchor']]
 df['Root URL'] = df['Referring page URL'].apply(lambda x: f"https://{tldextract.extract(x).domain}.{tldextract.extract(x).suffix}")
 df = df.drop_duplicates(subset='Root URL', keep='first')
-df[['First Name', 'Last Name', 'Referring Topic', 'Target Topic', 'Recipient', 'Email Sent', 'Replied', 'Converted']] = ""
+df[['Referring Topic', 'Referring Hyperlink', 'Target Topic', 'Target Hyperlink', 'SQ1 URL', 'First Name', 'Last Name', 'Recipient', 'Email Sent', 'Replied', 'Converted']] = ""
 
 
 # Phase 3: The conditions (outlined in the instructions)

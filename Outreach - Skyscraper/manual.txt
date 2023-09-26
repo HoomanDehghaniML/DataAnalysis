@@ -1,0 +1,3 @@
+* Important *
+1 - Never run a cell in filter.ipynb more than once. 
+    a. Explanation: Some cells make permanent changes to files that will be used in the future. As a rule of thumb, it's always a good idea to run a cell only once.
